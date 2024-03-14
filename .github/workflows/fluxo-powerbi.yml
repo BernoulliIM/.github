@@ -1,0 +1,24 @@
+name: PowerBI Branch Automation
+
+on:
+  create: # Disparado na criação de uma nova branch ou tag
+
+jobs:
+  add-readme:
+    runs-on: self-hosted # Utiliza um runner auto-hospedado
+    if: github.ref_type == 'branch' && startsWith(github.ref_name, 'powerbi-') # Condição para executar apenas em branches que começam com 'powerbi-'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Isso garante que o histórico completo seja clonado
+      - name: Copy README.md template to new branch
+        run: |
+          git config --global user.email "thiago.marasco@bernoulli.com.br"
+          git config --global user.name "ThiagosMarasco"
+          cp .github/README.md README.md # Garanta que o caminho do seu template esteja correto
+          git add README.md
+          git commit -m "Add README.md template" || echo "No changes to commit"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Garante a autenticação para o push
+
